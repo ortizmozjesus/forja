@@ -1,0 +1,13 @@
+{
+  "name": "forja",
+  "version": "1.0.0",
+  "description": "Generacion de imagenes con IA por lotes: plantillas, variables, referencias y cola.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "lote": "node cli.js"
+  },
+  "engines": { "node": ">=18" },
+  "dependencies": {}
+}

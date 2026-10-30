@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forja, Estudio</title>
+<link rel="stylesheet" href="/public/estilo.css">
+<link rel="stylesheet" href="/public/estudio.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23f1f7f8'/><path d='M4 26h24' stroke='%23e97219' stroke-width='2'/><text x='16' y='23' font-family='Georgia,serif' font-size='20' text-anchor='middle' fill='%230a1522'>F</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Serif:opsz@12..24&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body class="estudio">
+<header>
+  <div class="marca">Forja<span>Estudio, editar y crear imágenes con Nano Banana</span></div>
+  <div class="acciones">
+    <span id="coste" class="ayuda"></span>
+    <a class="boton" href="/lotes">Lotes</a>
+    <button id="btnNueva" class="fantasma">Nueva conversación</button>
+    <button id="btnClaves" class="fantasma">Claves API</button>
+  </div>
+</header>
+
+<main class="chat">
+  <div id="avisoClave" class="aviso oculto">
+    Falta la clave de Gemini. <button id="btnClaveAviso" class="fantasma">Añadir clave</button>
+  </div>
+  <div id="hilo" class="hilo">
+    <div id="vacio" class="vacio">
+      <h1>¿Qué quieres hacer?</h1>
+      <p>Arrastra aquí tus imágenes (o pégalas con <kbd>Ctrl</kbd>+<kbd>V</kbd>), cuéntame qué quieres y Nano Banana las edita, las combina o crea imágenes nuevas. Después puedes seguir pidiendo cambios sobre el resultado.</p>
+      <div class="ejemplos">
+        <button class="ejemplo" data-t="Coloca el objeto de la imagen 2 dentro de la imagen 1, en el sitio que te indico, respetando la luz, la perspectiva y las sombras. No cambies nada más de la imagen 1.">Meter un objeto en una foto</button>
+        <button class="ejemplo" data-t="Cambia el material de ... por ..., manteniendo exactamente el mismo encuadre, la luz y el resto de elementos.">Cambiar un material</button>
+        <button class="ejemplo" data-t="Crea un render fotorrealista de ..., luz de atardecer, lente de 24 mm, sin texto.">Crear desde cero</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="compositor">
+  <div id="bandeja" class="bandeja"></div>
+  <div class="caja">
+    <button id="btnAdjuntar" class="fantasma" title="Adjuntar imágenes">Adjuntar</button>
+    <input type="file" id="archivos" accept="image/*" multiple hidden>
+    <textarea id="texto" rows="2" placeholder="Qué quieres hacer. Puedes citar las imágenes: «la imagen 1», «la imagen 2»…"></textarea>
+    <button id="btnEnviar" class="principal">Enviar</button>
+  </div>
+  <div class="opciones">
+    <label><span>Modelo</span><select id="modelo"></select></label>
+    <label><span>Proporción</span>
+      <select id="aspecto">
+        <option value="auto">Como la imagen</option><option>1:1</option><option>3:2</option><option>16:9</option>
+        <option>4:3</option><option>4:5</option><option>2:3</option><option>9:16</option>
+      </select>
+    </label>
+    <label><span>Tamaño</span>
+      <select id="tamano"><option value="auto">Automático</option><option>1K</option><option>2K</option><option>4K</option></select>
+    </label>
+    <label><span>Opciones</span>
+      <select id="n"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+    </label>
+    <span id="estimado" class="ayuda"></span>
+  </div>
+</footer>
+
+<div id="capaSoltar" class="capaSoltar oculto">Suelta las imágenes aquí</div>
+
+<dialog id="dlgZoom" class="zoom"><img id="zoomImg" alt="" width="1600" height="1000" src="data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA="></dialog>
+
+<dialog id="dlgClaves">
+  <form method="dialog">
+    <h3>Clave de Gemini</h3>
+    <p class="ayuda">Se guarda solo en <code>config.json</code>, en tu ordenador. También se lee de la variable de entorno <code>GEMINI_API_KEY</code>. Si ya hay una guardada, déjalo en blanco para conservarla.</p>
+    <label class="campo"><span>Google Gemini</span><input id="claveGemini" type="password" autocomplete="off" placeholder="pega aquí tu clave"></label>
+    <div id="resultadoClave" class="ayuda"></div>
+    <div class="fila derecha-fila">
+      <button type="button" id="btnProbarClave" class="fantasma">Guardar y probar</button>
+      <button value="cancelar" class="fantasma">Cerrar</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="/public/estudio.js" type="module"></script>
+</body>
+</html>

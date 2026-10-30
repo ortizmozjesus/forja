@@ -1,0 +1,7 @@
+config.json
+.env
+salidas/
+referencias/
+node_modules/
+ejemplos/*.png
+ejemplos/*.jpg

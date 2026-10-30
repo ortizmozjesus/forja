@@ -1,0 +1,20 @@
+{
+  "nombre": "maquina-en-nave",
+  "modo": "composicion",
+  "proveedor": "prueba",
+  "modelo": "mock",
+  "plantilla": "coloca la máquina de @maquina [junto al muro del fondo|en el centro de la nave|en la esquina derecha, en diagonal], a la luz de {{hora}}",
+  "conservar": "la estructura metálica, las instalaciones existentes ni el encuadre",
+  "sufijo": "",
+  "variables": { "hora": ["media tarde", "primera hora de la mañana"] },
+  "referencias": {
+    "nave-actual": { "ruta": "ejemplos/nave-actual.png", "rol": "base" },
+    "maquina": { "ruta": "ejemplos/maquina.png", "rol": "objeto" },
+    "concepto-3d": { "ruta": "ejemplos/concepto-3d.png", "rol": "estilo" }
+  },
+  "variantes": 2,
+  "concurrencia": 3,
+  "salida": "salidas/maquina-en-nave",
+  "patronNombre": "{{indice}}-{{hora}}-v{{variante}}",
+  "opciones": { "aspecto": "3:2", "tamano": "2K", "formato": "png", "calidad": "high", "fidelidad": "high" }
+}

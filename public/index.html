@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forja, imágenes por lotes</title>
+<link rel="stylesheet" href="/public/estilo.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23f1f7f8'/><path d='M4 26h24' stroke='%23e97219' stroke-width='2'/><text x='16' y='23' font-family='Georgia,serif' font-size='20' text-anchor='middle' fill='%230a1522'>F</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hedvig+Letters+Serif:opsz@12..24&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+<header>
+  <div class="marca">Forja<span>generación de imágenes por lotes</span></div>
+  <div class="acciones">
+    <a class="boton" href="/">Estudio</a>
+    <select id="recetasGuardadas" title="Recetas guardadas"><option value="">Recetas</option></select>
+    <button id="btnGuardarReceta" class="fantasma">Guardar receta</button>
+    <button id="btnClaves" class="fantasma">Claves API</button>
+  </div>
+</header>
+
+<main>
+  <!-- ------------------------------------------------ COLUMNA IZQUIERDA -->
+  <section class="panel">
+    <h2>1. Modelo</h2>
+    <div class="fila">
+      <label class="campo"><span>Proveedor</span><select id="proveedor"></select></label>
+      <label class="campo"><span>Modelo</span><input id="modelo" list="listaModelos" placeholder="modelo"><datalist id="listaModelos"></datalist></label>
+    </div>
+    <label class="campo oculto" id="campoBase"><span>URL base (compatible OpenAI)</span><input id="base" placeholder="https://api.proveedor.com/v1"></label>
+
+    <h2>2. Plantilla</h2>
+    <div class="modos">
+      <button id="modoLibre" class="modo activo" data-modo="libre">Crear desde cero</button>
+      <button id="modoComp" class="modo" data-modo="composicion">Componer sobre una foto</button>
+    </div>
+    <p class="ayuda" id="ayudaLibre">Escribe una sola vez. <code>{{variable}}</code> se sustituye, <code>[a|b|c]</code> multiplica el lote, <code>@referencia</code> adjunta una imagen.</p>
+    <p class="ayuda oculto" id="ayudaComp">Sube abajo la <b>foto del sitio</b> (rol <i>base</i>), la <b>máquina u objeto</b> (rol <i>objeto</i>) y el <b>3D conceptual</b> (rol <i>estilo</i>). Aquí solo escribes qué hay que hacer; la app monta la instrucción completa y manda las imágenes en orden.</p>
+    <textarea id="plantilla" rows="5" placeholder="Render arquitectónico de {{tipo}} en [hormigón visto|ladrillo], luz de {{hora}}, siguiendo @moodboard"></textarea>
+    <label class="campo oculto" id="campoConservar"><span>Qué NO debe cambiar</span><input id="conservar" placeholder="la estructura, las instalaciones existentes, el encuadre"></label>
+    <label class="campo"><span>Sufijo fijo (estilo, cámara, calidad…)</span><input id="sufijo" placeholder="fotorrealista, lente 24mm, sin texto"></label>
+
+    <h2>3. Variables</h2>
+    <div id="variables" class="variables"></div>
+    <div class="fila">
+      <button id="btnVar" class="fantasma">+ variable</button>
+      <button id="btnCsv" class="fantasma">Importar CSV/TSV</button>
+      <input type="file" id="csv" accept=".csv,.tsv,.txt" hidden>
+    </div>
+    <div id="avisoFilas" class="aviso oculto"></div>
+
+    <h2>4. Referencias</h2>
+    <p class="ayuda" id="ayudaRefs">Arrastra imágenes aquí. Se citan en el prompt como <code>@nombre</code>; las marcadas como fijas se envían en todas.</p>
+    <div id="zonaRefs" class="zonaRefs">
+      <div id="refs" class="refs"></div>
+      <label class="soltar">Arrastra o pulsa para añadir<input type="file" id="archivoRefs" accept="image/*" multiple hidden></label>
+    </div>
+
+    <h2>5. Opciones</h2>
+    <div class="rejilla">
+      <label class="campo"><span>Proporción</span><select id="aspecto"><option>1:1</option><option selected>3:2</option><option>16:9</option><option>4:3</option><option>2:3</option><option>9:16</option></select></label>
+      <label class="campo"><span>Tamaño</span><select id="tamano"><option>1K</option><option>2K</option><option>4K</option></select></label>
+      <label class="campo"><span>Formato</span><select id="formato"><option>png</option><option>jpg</option><option>webp</option></select></label>
+      <label class="campo"><span>Calidad</span><select id="calidad"><option value="">auto</option><option>low</option><option>medium</option><option>high</option></select></label>
+      <label class="campo"><span>Variantes por prompt</span><input id="variantes" type="number" min="1" max="10" value="1"></label>
+      <label class="campo"><span>En paralelo</span><input id="concurrencia" type="number" min="1" max="12" value="3"></label>
+      <label class="campo ancho"><span>Carpeta de salida</span><input id="salida" placeholder="salidas/mi-lote"></label>
+      <label class="campo ancho"><span>Nombre de archivo</span><input id="patron" value="{{indice}}-{{resumen}}-v{{variante}}"></label>
+    </div>
+  </section>
+
+  <!-- ------------------------------------------------ COLUMNA DERECHA -->
+  <section class="panel derecha">
+    <div class="lanzador">
+      <div>
+        <strong id="contador">0 imágenes</strong>
+        <span id="detalleContador" class="ayuda"></span>
+      </div>
+      <div class="fila">
+        <button id="btnCancelar" class="fantasma oculto">Cancelar</button>
+        <button id="btnNano" class="secundario" title="Prepara imágenes y prompts para hacerlo a mano en Gemini, sin API">Pasar a Nano Banana</button>
+        <button id="btnGenerar" class="principal">Generar lote</button>
+      </div>
+    </div>
+
+    <div class="barra oculta" id="barra"><div id="progreso"></div></div>
+
+    <div id="avisoRefs" class="aviso oculto"></div>
+    <h2>Previsualización de prompts</h2>
+    <div id="previa" class="previa"></div>
+
+    <h2>Resultados <span id="rutaSalida" class="ayuda"></span></h2>
+    <div id="galeria" class="galeria"></div>
+    <details id="registro"><summary>Registro</summary><pre id="log"></pre></details>
+  </section>
+</main>
+
+<dialog id="dlgClaves">
+  <form method="dialog">
+    <h3>Claves API</h3>
+    <p class="ayuda">Se guardan solo en <code>config.json</code>, en tu ordenador. También se leen de las variables de entorno.</p>
+    <label class="campo"><span>Google Gemini</span><input id="claveGemini" type="password" placeholder="AIza…"></label>
+    <label class="campo"><span>OpenAI</span><input id="claveOpenai" type="password" placeholder="sk-…"></label>
+    <label class="campo"><span>Compatible</span><input id="claveCompatible" type="password" placeholder="clave del proveedor compatible"></label>
+    <div class="fila derecha-fila"><button value="cancelar" class="fantasma">Cerrar</button><button id="btnGuardarClaves" value="ok" class="principal">Guardar</button></div>
+  </form>
+</dialog>
+
+<dialog id="dlgNano">
+  <div class="cabDlg">
+    <div>
+      <h3>Sesión manual en Nano Banana</h3>
+      <p class="ayuda" id="nanoResumen"></p>
+    </div>
+    <button id="cerrarNano" class="fantasma">Cerrar</button>
+  </div>
+
+  <div class="paso">
+    <span class="num">1</span>
+    <div>
+      <b>Abre el modelo de imagen</b>
+      <p class="ayuda">Con tu cuenta, sin API ni coste.</p>
+      <div class="fila">
+        <a class="boton" href="https://gemini.google.com/app" target="_blank" rel="noopener">Abrir Gemini</a>
+        <a class="boton" href="https://aistudio.google.com/prompts/new_chat" target="_blank" rel="noopener">Abrir AI Studio</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="paso">
+    <span class="num">2</span>
+    <div>
+      <b>Adjunta estas imágenes, en este orden</b>
+      <p class="ayuda" id="nanoCarpeta"></p>
+      <div id="nanoRefs" class="refs"></div>
+    </div>
+  </div>
+
+  <div class="paso">
+    <span class="num">3</span>
+    <div>
+      <b>Pega los prompts, uno a uno, en la misma conversación</b>
+      <p class="ayuda">Sigue en el mismo chat: el modelo conserva las imágenes y el contexto, así cada encuadre nuevo sale más coherente.</p>
+      <div id="nanoPrompts" class="prompts"></div>
+    </div>
+  </div>
+</dialog>
+
+<script src="/public/app.js" type="module"></script>
+</body>
+</html>

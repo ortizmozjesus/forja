@@ -1,0 +1,18 @@
+{
+  "nombre": "fachadas-mediterraneo",
+  "proveedor": "prueba",
+  "modelo": "mock",
+  "plantilla": "Render arquitectónico exterior de {{tipo}} con fachada de [hormigón visto|piedra caliza|estuco blanco], luz de {{hora}}, siguiendo la paleta de @moodboard",
+  "sufijo": "fotorrealista, cámara a la altura del ojo, lente 24 mm, sin texto ni marcas de agua",
+  "variables": {
+    "tipo": ["casa patio de una planta", "vivienda entre medianeras", "pabellón de invitados"],
+    "hora": ["amanecer", "hora azul"]
+  },
+  "referencias": { "moodboard": { "ruta": "ejemplos/moodboard.png" } },
+  "refsGlobales": [],
+  "variantes": 1,
+  "concurrencia": 4,
+  "salida": "salidas/ejemplo",
+  "patronNombre": "{{indice}}-{{tipo}}-{{hora}}",
+  "opciones": { "aspecto": "3:2", "tamano": "2K", "formato": "png", "calidad": "high" }
+}
